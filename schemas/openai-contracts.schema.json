@@ -1,0 +1,1436 @@
+{
+  "definitions": {
+    "json_object": {
+      "type": "object"
+    },
+    "string_map": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "string"
+      }
+    },
+    "string_array": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "integer_array": {
+      "type": "array",
+      "items": {
+        "type": "integer"
+      }
+    },
+    "number_array": {
+      "type": "array",
+      "items": {
+        "type": "number"
+      }
+    },
+    "annotation": {
+      "type": "object",
+      "properties": {
+        "type": { "type": "string" },
+        "title": { "type": "string" },
+        "url": { "type": "string" },
+        "text": { "type": "string" },
+        "file_id": { "type": "string" },
+        "filename": { "type": "string" },
+        "index": { "type": "integer" },
+        "start_index": { "type": "integer" },
+        "end_index": { "type": "integer" }
+      },
+      "required": ["type"],
+      "additionalProperties": false
+    },
+    "logprob_token": {
+      "type": "object",
+      "properties": {
+        "token": { "type": "string" },
+        "logprob": { "type": ["number", "null"] },
+        "bytes": { "$ref": "#/definitions/integer_array" }
+      },
+      "required": ["token"],
+      "additionalProperties": false
+    },
+    "responses_message_content_part": {
+      "anyOf": [
+        {
+          "type": "object",
+          "properties": {
+            "type": { "enum": ["input_text"] },
+            "text": { "type": "string" }
+          },
+          "required": ["type", "text"],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "type": { "enum": ["input_image"] },
+            "image_url": { "type": "string" },
+            "file_id": { "type": "string" },
+            "detail": { "type": "string" }
+          },
+          "required": ["type"],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "type": { "enum": ["input_file"] },
+            "file_id": { "type": "string" },
+            "file_url": { "type": "string" },
+            "filename": { "type": "string" },
+            "file_data": { "type": "string" }
+          },
+          "required": ["type"],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "type": { "enum": ["output_text"] },
+            "text": { "type": "string" },
+            "annotations": {
+              "type": "array",
+              "items": { "$ref": "#/definitions/annotation" }
+            },
+            "logprobs": {
+              "type": "array",
+              "items": { "$ref": "#/definitions/logprob_token" }
+            }
+          },
+          "required": ["type", "text"],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "type": { "enum": ["refusal"] },
+            "refusal": { "type": "string" }
+          },
+          "required": ["type", "refusal"],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "type": { "type": "string" }
+          },
+          "required": ["type"],
+          "additionalProperties": true
+        }
+      ]
+    },
+    "responses_tool_output_payload": {
+      "anyOf": [
+        { "type": "string" },
+        {
+          "type": "array",
+          "items": { "$ref": "#/definitions/responses_message_content_part" }
+        },
+        {}
+      ]
+    },
+    "responses_item": {
+      "anyOf": [
+        {
+          "type": "object",
+          "properties": {
+            "type": { "enum": ["message"] },
+            "id": { "type": "string" },
+            "status": { "type": "string" },
+            "phase": { "type": "string" },
+            "role": { "type": "string" },
+            "content": {
+              "type": "array",
+              "items": { "$ref": "#/definitions/responses_message_content_part" }
+            }
+          },
+          "required": ["type", "role"],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "type": { "enum": ["reasoning"] },
+            "id": { "type": "string" },
+            "status": { "type": "string" },
+            "summary": {
+              "type": "array",
+              "items": {
+                "anyOf": [
+                  { "type": "string" },
+                  {
+                    "type": "object",
+                    "properties": { "text": { "type": "string" } },
+                    "required": ["text"],
+                    "additionalProperties": false
+                  }
+                ]
+              }
+            },
+            "encrypted_content": { "type": "string" }
+          },
+          "required": ["type"],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "type": { "enum": ["compaction"] },
+            "id": { "type": "string" },
+            "status": { "type": "string" },
+            "summary": {}
+          },
+          "required": ["type"],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "type": { "enum": ["item_reference"] },
+            "id": { "type": "string" },
+            "item_id": { "type": "string" }
+          },
+          "required": ["type"],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "type": { "enum": ["function_call"] },
+            "id": { "type": "string" },
+            "status": { "type": "string" },
+            "call_id": { "type": "string" },
+            "name": { "type": "string" },
+            "arguments": { "type": "string" }
+          },
+          "required": ["type", "name", "arguments"],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "type": { "enum": ["function_call_output"] },
+            "id": { "type": "string" },
+            "status": { "type": "string" },
+            "call_id": { "type": "string" },
+            "output": { "$ref": "#/definitions/responses_tool_output_payload" }
+          },
+          "required": ["type", "call_id"],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "type": { "enum": ["function_shell_call"] },
+            "id": { "type": "string" },
+            "status": { "type": "string" },
+            "call_id": { "type": "string" },
+            "action": {},
+            "result": {}
+          },
+          "required": ["type"],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "type": { "enum": ["function_shell_call_output"] },
+            "id": { "type": "string" },
+            "status": { "type": "string" },
+            "call_id": { "type": "string" },
+            "output": {}
+          },
+          "required": ["type", "call_id"],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "type": { "enum": ["file_search_call"] },
+            "id": { "type": "string" },
+            "status": { "type": "string" },
+            "queries": { "$ref": "#/definitions/string_array" },
+            "results": {}
+          },
+          "required": ["type"],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "type": { "enum": ["tool_search_call"] },
+            "id": { "type": "string" },
+            "status": { "type": "string" },
+            "call_id": { "type": "string" },
+            "queries": { "$ref": "#/definitions/string_array" },
+            "results": {}
+          },
+          "required": ["type"],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "type": { "enum": ["tool_search_output"] },
+            "id": { "type": "string" },
+            "status": { "type": "string" },
+            "call_id": { "type": "string" },
+            "output": {}
+          },
+          "required": ["type", "call_id"],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "type": { "enum": ["web_search_call"] },
+            "id": { "type": "string" },
+            "status": { "type": "string" },
+            "action": {}
+          },
+          "required": ["type"],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "type": { "enum": ["computer_call"] },
+            "id": { "type": "string" },
+            "status": { "type": "string" },
+            "call_id": { "type": "string" },
+            "action": {},
+            "pending_safety_checks": {}
+          },
+          "required": ["type"],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "type": { "enum": ["computer_call_output"] },
+            "id": { "type": "string" },
+            "status": { "type": "string" },
+            "call_id": { "type": "string" },
+            "output": {}
+          },
+          "required": ["type", "call_id"],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "type": { "enum": ["local_shell_call"] },
+            "id": { "type": "string" },
+            "status": { "type": "string" },
+            "call_id": { "type": "string" },
+            "action": {},
+            "output": {}
+          },
+          "required": ["type"],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "type": { "enum": ["local_shell_call_output"] },
+            "id": { "type": "string" },
+            "status": { "type": "string" },
+            "call_id": { "type": "string" },
+            "output": {}
+          },
+          "required": ["type"],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "type": { "enum": ["shell_call"] },
+            "id": { "type": "string" },
+            "status": { "type": "string" },
+            "call_id": { "type": "string" },
+            "action": {},
+            "output": {}
+          },
+          "required": ["type"],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "type": { "enum": ["shell_call_output"] },
+            "id": { "type": "string" },
+            "status": { "type": "string" },
+            "call_id": { "type": "string" },
+            "output": {}
+          },
+          "required": ["type"],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "type": { "enum": ["custom_tool_call"] },
+            "id": { "type": "string" },
+            "status": { "type": "string" },
+            "call_id": { "type": "string" },
+            "name": { "type": "string" },
+            "input": { "type": "string" }
+          },
+          "required": ["type", "name"],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "type": { "enum": ["custom_tool_call_output"] },
+            "id": { "type": "string" },
+            "status": { "type": "string" },
+            "call_id": { "type": "string" },
+            "output": { "$ref": "#/definitions/responses_tool_output_payload" }
+          },
+          "required": ["type", "call_id"],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "type": { "enum": ["image_generation_call"] },
+            "id": { "type": "string" },
+            "status": { "type": "string" },
+            "result": {}
+          },
+          "required": ["type"],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "type": { "enum": ["code_interpreter_call"] },
+            "id": { "type": "string" },
+            "status": { "type": "string" },
+            "call_id": { "type": "string" },
+            "code": { "type": "string" },
+            "outputs": {}
+          },
+          "required": ["type"],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "type": { "enum": ["code_interpreter_call_output"] },
+            "id": { "type": "string" },
+            "status": { "type": "string" },
+            "call_id": { "type": "string" },
+            "output": {}
+          },
+          "required": ["type", "call_id"],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "type": { "enum": ["mcp_call"] },
+            "id": { "type": "string" },
+            "status": { "type": "string" },
+            "name": { "type": "string" },
+            "arguments": { "type": "string" },
+            "server_label": { "type": "string" },
+            "approval_request_id": { "type": "string" },
+            "output": {},
+            "error": {}
+          },
+          "required": ["type"],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "type": { "enum": ["mcp_list_tools"] },
+            "id": { "type": "string" },
+            "status": { "type": "string" },
+            "server_label": { "type": "string" },
+            "tools": {},
+            "error": { "type": "string" }
+          },
+          "required": ["type"],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "type": { "enum": ["mcp_approval_request"] },
+            "id": { "type": "string" },
+            "status": { "type": "string" },
+            "name": { "type": "string" },
+            "arguments": { "type": "string" },
+            "server_label": { "type": "string" }
+          },
+          "required": ["type"],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "type": { "enum": ["mcp_approval_response"] },
+            "id": { "type": "string" },
+            "status": { "type": "string" },
+            "approval_request_id": { "type": "string" },
+            "approve": { "type": "boolean" },
+            "reason": { "type": "string" }
+          },
+          "required": ["type"],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "type": { "enum": ["apply_patch_call"] },
+            "id": { "type": "string" },
+            "status": { "type": "string" },
+            "call_id": { "type": "string" },
+            "input": { "type": "string" },
+            "output": {}
+          },
+          "required": ["type"],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "type": { "enum": ["apply_patch_call_output"] },
+            "id": { "type": "string" },
+            "status": { "type": "string" },
+            "call_id": { "type": "string" },
+            "output": {}
+          },
+          "required": ["type", "call_id"],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "type": { "type": "string" }
+          },
+          "required": ["type"],
+          "additionalProperties": true
+        }
+      ]
+    },
+    "responses_context_management_entry": {
+      "type": "object",
+      "properties": {
+        "type": { "type": "string" },
+        "compact_threshold": { "type": "integer" }
+      },
+      "required": ["type"],
+      "additionalProperties": false
+    },
+    "responses_reasoning_config": {
+      "type": "object",
+      "properties": {
+        "effort": { "type": "string" },
+        "generate_summary": { "type": "string" },
+        "summary": { "type": "string" }
+      },
+      "additionalProperties": false
+    },
+    "json_schema_format": {
+      "type": "object",
+      "properties": {
+        "name": { "type": "string" },
+        "description": { "type": "string" },
+        "strict": { "type": "boolean" },
+        "schema": {}
+      },
+      "additionalProperties": false
+    },
+    "responses_text_config": {
+      "type": "object",
+      "properties": {
+        "verbosity": { "type": "string" },
+        "format": {
+          "type": "object",
+          "properties": {
+            "type": { "type": "string" },
+            "json_schema": { "$ref": "#/definitions/json_schema_format" }
+          },
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false
+    },
+    "chat_response_format": {
+      "type": "object",
+      "properties": {
+        "type": { "type": "string" },
+        "json_schema": { "$ref": "#/definitions/json_schema_format" },
+        "verbosity": { "type": "string" }
+      },
+      "additionalProperties": false
+    },
+    "responses_tool_choice": {
+      "anyOf": [
+        { "type": "string" },
+        {
+          "type": "object",
+          "properties": {
+            "type": { "type": "string" },
+            "name": { "type": "string" },
+            "server_label": { "type": "string" },
+            "tools": {}
+          },
+          "additionalProperties": false
+        }
+      ]
+    },
+    "responses_tool_definition": {
+      "anyOf": [
+        {
+          "type": "object",
+          "properties": {
+            "type": { "enum": ["function"] },
+            "name": { "type": "string" },
+            "description": { "type": "string" },
+            "strict": { "type": "boolean" },
+            "parameters": {}
+          },
+          "required": ["type", "name"],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "type": { "enum": ["file_search"] },
+            "vector_store_ids": { "$ref": "#/definitions/string_array" },
+            "max_num_results": { "type": "integer" },
+            "filters": {},
+            "ranking_options": {}
+          },
+          "required": ["type"],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "type": { "enum": ["tool_search"] },
+            "description": { "type": "string" },
+            "filters": {},
+            "ranking_options": {},
+            "user_location": {},
+            "config": {}
+          },
+          "required": ["type"],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "type": { "enum": ["web_search"] },
+            "search_context_size": { "type": "string" },
+            "user_location": {},
+            "filters": {}
+          },
+          "required": ["type"],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "type": { "enum": ["computer_use"] },
+            "environment": { "type": "string" },
+            "display_width": { "type": "integer" },
+            "display_height": { "type": "integer" }
+          },
+          "required": ["type"],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "type": { "enum": ["namespace"] },
+            "name": { "type": "string" },
+            "description": { "type": "string" },
+            "config": {}
+          },
+          "required": ["type"],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "type": { "enum": ["local_shell"] },
+            "description": { "type": "string" }
+          },
+          "required": ["type"],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "type": { "enum": ["shell"] },
+            "description": { "type": "string" }
+          },
+          "required": ["type"],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "type": { "enum": ["function_shell"] },
+            "description": { "type": "string" },
+            "parameters": {},
+            "strict": { "type": "boolean" }
+          },
+          "required": ["type"],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "type": { "enum": ["custom"] },
+            "name": { "type": "string" },
+            "description": { "type": "string" },
+            "format": { "type": "string" },
+            "grammar": {}
+          },
+          "required": ["type", "name"],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "type": { "enum": ["image_generation"] },
+            "model": { "type": "string" },
+            "background": { "type": "string" },
+            "output_format": { "type": "string" },
+            "quality": { "type": "string" },
+            "size": { "type": "string" }
+          },
+          "required": ["type"],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "type": { "enum": ["code_interpreter"] },
+            "container": {}
+          },
+          "required": ["type"],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "type": { "enum": ["mcp"] },
+            "server_label": { "type": "string" },
+            "server_url": { "type": "string" },
+            "connector_id": { "type": "string" },
+            "allowed_tools": { "$ref": "#/definitions/string_array" },
+            "headers": {},
+            "require_approval": { "type": "string" },
+            "authorization": {}
+          },
+          "required": ["type"],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "type": { "enum": ["apply_patch"] }
+          },
+          "required": ["type"],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "type": { "type": "string" }
+          },
+          "required": ["type"],
+          "additionalProperties": true
+        }
+      ]
+    },
+    "responses_stream_options": {
+      "type": "object",
+      "properties": {
+        "include_obfuscation": { "type": "boolean" }
+      },
+      "additionalProperties": false
+    },
+    "responses_error": {
+      "type": "object",
+      "properties": {
+        "type": { "type": "string" },
+        "code": { "type": "string" },
+        "message": { "type": "string" },
+        "param": { "type": "string" }
+      },
+      "additionalProperties": false
+    },
+    "responses_usage": {
+      "type": "object",
+      "properties": {
+        "input_tokens": { "type": "integer" },
+        "output_tokens": { "type": "integer" },
+        "total_tokens": { "type": "integer" },
+        "input_tokens_details": {
+          "type": "object",
+          "properties": {
+            "cached_tokens": { "type": "integer" }
+          },
+          "additionalProperties": false
+        },
+        "output_tokens_details": {
+          "type": "object",
+          "properties": {
+            "reasoning_tokens": { "type": "integer" }
+          },
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false
+    },
+    "responses_incomplete_details": {
+      "type": "object",
+      "properties": {
+        "reason": { "type": "string" }
+      },
+      "additionalProperties": false
+    },
+    "responses_request_document": {
+      "type": "object",
+      "properties": {
+        "model": { "type": "string" },
+        "input": {
+          "anyOf": [
+            { "type": "string" },
+            {
+              "type": "array",
+              "items": { "$ref": "#/definitions/responses_item" }
+            }
+          ]
+        },
+        "instructions": {
+          "anyOf": [
+            { "type": "string" },
+            {
+              "type": "array",
+              "items": { "$ref": "#/definitions/responses_item" }
+            }
+          ]
+        },
+        "tools": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/responses_tool_definition" }
+        },
+        "tool_choice": { "$ref": "#/definitions/responses_tool_choice" },
+        "reasoning": { "$ref": "#/definitions/responses_reasoning_config" },
+        "text": { "$ref": "#/definitions/responses_text_config" },
+        "background": { "type": "boolean" },
+        "parallel_tool_calls": { "type": "boolean" },
+        "store": { "type": "boolean" },
+        "stream": { "type": "boolean" },
+        "stream_options": { "$ref": "#/definitions/responses_stream_options" },
+        "previous_response_id": { "type": "string" },
+        "max_output_tokens": { "type": "integer" },
+        "max_tool_calls": { "type": "integer" },
+        "temperature": { "type": "number" },
+        "top_p": { "type": "number" },
+        "top_logprobs": { "type": "number" },
+        "truncation": { "type": "string" },
+        "prompt_cache_key": { "type": "string" },
+        "prompt_cache_retention": { "type": "string" },
+        "safety_identifier": { "type": "string" },
+        "service_tier": { "type": "string" },
+        "context_management": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/responses_context_management_entry" }
+        },
+        "conversation": {},
+        "prompt": {},
+        "include": { "$ref": "#/definitions/string_array" },
+        "metadata": { "$ref": "#/definitions/string_map" },
+        "user": { "type": "string" }
+      },
+      "required": ["model"],
+      "additionalProperties": false
+    },
+    "responses_response_partial": {
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "object": { "type": "string" },
+        "model": { "type": "string" },
+        "status": { "type": "string" },
+        "created_at": { "type": "integer" },
+        "completed_at": { "type": "integer" },
+        "instructions": {
+          "anyOf": [
+            { "type": "string" },
+            {
+              "type": "array",
+              "items": { "$ref": "#/definitions/responses_item" }
+            }
+          ]
+        },
+        "output": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/responses_item" }
+        },
+        "tools": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/responses_tool_definition" }
+        },
+        "tool_choice": { "$ref": "#/definitions/responses_tool_choice" },
+        "error": { "$ref": "#/definitions/responses_error" },
+        "incomplete_details": { "$ref": "#/definitions/responses_incomplete_details" },
+        "usage": { "$ref": "#/definitions/responses_usage" },
+        "text": { "$ref": "#/definitions/responses_text_config" },
+        "reasoning": { "$ref": "#/definitions/responses_reasoning_config" },
+        "background": { "type": "boolean" },
+        "parallel_tool_calls": { "type": "boolean" },
+        "stream": { "type": "boolean" },
+        "stream_options": { "$ref": "#/definitions/responses_stream_options" },
+        "previous_response_id": { "type": "string" },
+        "max_output_tokens": { "type": "integer" },
+        "max_tool_calls": { "type": "integer" },
+        "temperature": { "type": "number" },
+        "top_p": { "type": "number" },
+        "top_logprobs": { "type": "number" },
+        "truncation": { "type": "string" },
+        "prompt_cache_key": { "type": "string" },
+        "prompt_cache_retention": { "type": "string" },
+        "safety_identifier": { "type": "string" },
+        "service_tier": { "type": "string" },
+        "conversation": {},
+        "prompt": {},
+        "metadata": { "$ref": "#/definitions/string_map" },
+        "user": { "type": "string" }
+      },
+      "additionalProperties": false
+    },
+    "responses_response_document": {
+      "allOf": [
+        { "$ref": "#/definitions/responses_response_partial" },
+        {
+          "type": "object",
+          "required": ["object"],
+          "anyOf": [
+            { "required": ["output"] },
+            { "required": ["error"] }
+          ]
+        }
+      ]
+    },
+    "chat_content_part": {
+      "anyOf": [
+        {
+          "type": "object",
+          "properties": {
+            "type": { "enum": ["text"] },
+            "text": { "type": "string" }
+          },
+          "required": ["type", "text"],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "type": { "enum": ["image_url"] },
+            "image_url": {
+              "type": "object",
+              "properties": {
+                "url": { "type": "string" },
+                "detail": { "type": "string" }
+              },
+              "required": ["url"],
+              "additionalProperties": false
+            }
+          },
+          "required": ["type", "image_url"],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "type": { "enum": ["input_audio"] },
+            "input_audio": {
+              "type": "object",
+              "properties": {
+                "data": { "type": "string" },
+                "format": { "type": "string" }
+              },
+              "required": ["data", "format"],
+              "additionalProperties": false
+            }
+          },
+          "required": ["type", "input_audio"],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "type": { "type": "string" }
+          },
+          "required": ["type"],
+          "additionalProperties": true
+        }
+      ]
+    },
+    "chat_tool_call": {
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "type": { "type": "string" },
+        "function": {
+          "type": "object",
+          "properties": {
+            "name": { "type": "string" },
+            "arguments": { "type": "string" }
+          },
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false
+    },
+    "chat_message": {
+      "type": "object",
+      "properties": {
+        "role": { "type": "string" },
+        "content": {
+          "anyOf": [
+            { "type": "string" },
+            {
+              "type": "array",
+              "items": { "$ref": "#/definitions/chat_content_part" }
+            }
+          ]
+        },
+        "refusal": { "type": "string" },
+        "name": { "type": "string" },
+        "tool_call_id": { "type": "string" },
+        "tool_calls": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/chat_tool_call" }
+        },
+        "function_call": {
+          "type": "object",
+          "properties": {
+            "name": { "type": "string" },
+            "arguments": { "type": "string" }
+          },
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false
+    },
+    "chat_usage": {
+      "type": "object",
+      "properties": {
+        "prompt_tokens": { "type": "integer" },
+        "completion_tokens": { "type": "integer" },
+        "total_tokens": { "type": "integer" }
+      },
+      "additionalProperties": false
+    },
+    "chat_completion_choice": {
+      "type": "object",
+      "properties": {
+        "index": { "type": "integer" },
+        "message": { "$ref": "#/definitions/chat_message" },
+        "finish_reason": { "type": ["string", "null"] },
+        "logprobs": {}
+      },
+      "required": ["index"],
+      "additionalProperties": false
+    },
+    "chat_chunk_choice": {
+      "type": "object",
+      "properties": {
+        "index": { "type": "integer" },
+        "delta": { "$ref": "#/definitions/chat_message" },
+        "finish_reason": { "type": ["string", "null"] },
+        "logprobs": {}
+      },
+      "required": ["index"],
+      "additionalProperties": false
+    },
+    "chat_stream_options": {
+      "type": "object",
+      "properties": {
+        "include_obfuscation": { "type": "boolean" },
+        "include_usage": { "type": "boolean" }
+      },
+      "additionalProperties": false
+    },
+    "chat_request_document": {
+      "type": "object",
+      "properties": {
+        "model": { "type": "string" },
+        "messages": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/chat_message" }
+        },
+        "tools": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/responses_tool_definition" }
+        },
+        "tool_choice": { "$ref": "#/definitions/responses_tool_choice" },
+        "response_format": { "$ref": "#/definitions/chat_response_format" },
+        "audio": {},
+        "function_call": {},
+        "functions": {
+          "type": "array",
+          "items": {}
+        },
+        "frequency_penalty": { "type": "number" },
+        "logit_bias": {},
+        "logprobs": { "type": "boolean" },
+        "max_completion_tokens": { "type": "integer" },
+        "max_tokens": { "type": "integer" },
+        "modalities": { "$ref": "#/definitions/string_array" },
+        "n": { "type": "integer" },
+        "parallel_tool_calls": { "type": "boolean" },
+        "prediction": {},
+        "presence_penalty": { "type": "number" },
+        "prompt_cache_key": { "type": "string" },
+        "prompt_cache_retention": { "type": "string" },
+        "reasoning_effort": { "type": "string" },
+        "safety_identifier": { "type": "string" },
+        "seed": { "type": "integer" },
+        "service_tier": { "type": "string" },
+        "stop": {
+          "anyOf": [
+            { "type": "string" },
+            { "$ref": "#/definitions/string_array" }
+          ]
+        },
+        "store": { "type": "boolean" },
+        "temperature": { "type": "number" },
+        "top_logprobs": { "type": "integer" },
+        "top_p": { "type": "number" },
+        "stream": { "type": "boolean" },
+        "stream_options": { "$ref": "#/definitions/chat_stream_options" },
+        "metadata": { "$ref": "#/definitions/string_map" },
+        "user": { "type": "string" },
+        "web_search_options": {}
+      },
+      "required": ["model", "messages"],
+      "additionalProperties": false
+    },
+    "chat_completion_document": {
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "object": { "type": "string" },
+        "model": { "type": "string" },
+        "created": { "type": "integer" },
+        "service_tier": { "type": "string" },
+        "system_fingerprint": { "type": "string" },
+        "choices": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/chat_completion_choice" }
+        },
+        "usage": { "$ref": "#/definitions/chat_usage" }
+      },
+      "required": ["id", "object", "model", "created", "choices"],
+      "additionalProperties": false
+    },
+    "chat_completion_chunk_document": {
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "object": { "type": "string" },
+        "model": { "type": "string" },
+        "created": { "type": "integer" },
+        "service_tier": { "type": "string" },
+        "system_fingerprint": { "type": "string" },
+        "choices": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/chat_chunk_choice" }
+        },
+        "usage": { "$ref": "#/definitions/chat_usage" }
+      },
+      "required": ["id", "object", "model", "created", "choices"],
+      "additionalProperties": false
+    },
+    "completions_prompt_input": {
+      "anyOf": [
+        { "type": "string" },
+        { "$ref": "#/definitions/string_array" },
+        { "$ref": "#/definitions/integer_array" },
+        {
+          "type": "array",
+          "items": { "$ref": "#/definitions/integer_array" }
+        }
+      ]
+    },
+    "completions_logprobs": {
+      "type": "object",
+      "properties": {
+        "text_offset": { "$ref": "#/definitions/integer_array" },
+        "token_logprobs": { "$ref": "#/definitions/number_array" },
+        "tokens": { "$ref": "#/definitions/string_array" },
+        "top_logprobs": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": { "type": "number" }
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+    "completions_stream_options": {
+      "type": "object",
+      "properties": {
+        "include_obfuscation": { "type": "boolean" },
+        "include_usage": { "type": "boolean" }
+      },
+      "additionalProperties": false
+    },
+    "completions_request_document": {
+      "type": "object",
+      "properties": {
+        "model": { "type": "string" },
+        "prompt": { "$ref": "#/definitions/completions_prompt_input" },
+        "best_of": { "type": "integer" },
+        "echo": { "type": "boolean" },
+        "frequency_penalty": { "type": "number" },
+        "logit_bias": {},
+        "logprobs": { "type": "integer" },
+        "max_tokens": { "type": "integer" },
+        "n": { "type": "integer" },
+        "presence_penalty": { "type": "number" },
+        "seed": { "type": "integer" },
+        "stop": {
+          "anyOf": [
+            { "type": "string" },
+            { "$ref": "#/definitions/string_array" }
+          ]
+        },
+        "stream": { "type": "boolean" },
+        "stream_options": { "$ref": "#/definitions/completions_stream_options" },
+        "suffix": { "type": "string" },
+        "temperature": { "type": "number" },
+        "top_p": { "type": "number" },
+        "user": { "type": "string" }
+      },
+      "required": ["model", "prompt"],
+      "additionalProperties": false
+    },
+    "completions_choice": {
+      "type": "object",
+      "properties": {
+        "finish_reason": { "type": ["string", "null"] },
+        "index": { "type": "integer" },
+        "logprobs": { "$ref": "#/definitions/completions_logprobs" },
+        "text": { "type": "string" }
+      },
+      "required": ["index", "text"],
+      "additionalProperties": false
+    },
+    "completions_usage": {
+      "type": "object",
+      "properties": {
+        "completion_tokens": { "type": "integer" },
+        "prompt_tokens": { "type": "integer" },
+        "total_tokens": { "type": "integer" },
+        "completion_tokens_details": {
+          "type": "object",
+          "properties": {
+            "accepted_prediction_tokens": { "type": "integer" },
+            "audio_tokens": { "type": "integer" },
+            "reasoning_tokens": { "type": "integer" },
+            "rejected_prediction_tokens": { "type": "integer" }
+          },
+          "additionalProperties": false
+        },
+        "prompt_tokens_details": {
+          "type": "object",
+          "properties": {
+            "audio_tokens": { "type": "integer" },
+            "cached_tokens": { "type": "integer" }
+          },
+          "additionalProperties": false
+        }
+      },
+      "required": ["completion_tokens", "prompt_tokens", "total_tokens"],
+      "additionalProperties": false
+    },
+    "completions_response_document": {
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "choices": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/completions_choice" }
+        },
+        "created": { "type": "integer" },
+        "model": { "type": "string" },
+        "object": { "type": "string" },
+        "system_fingerprint": { "type": "string" },
+        "usage": { "$ref": "#/definitions/completions_usage" }
+      },
+      "required": ["id", "choices", "created", "model", "object"],
+      "additionalProperties": false
+    },
+    "completions_chunk_document": {
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "choices": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/completions_choice" }
+        },
+        "created": { "type": "integer" },
+        "model": { "type": "string" },
+        "object": { "type": "string" },
+        "system_fingerprint": { "type": "string" },
+        "usage": { "$ref": "#/definitions/completions_usage" }
+      },
+      "required": ["id", "choices", "created", "model", "object"],
+      "additionalProperties": false
+    },
+    "embeddings_input": {
+      "anyOf": [
+        { "type": "string" },
+        { "$ref": "#/definitions/string_array" },
+        { "$ref": "#/definitions/integer_array" },
+        {
+          "type": "array",
+          "items": { "$ref": "#/definitions/integer_array" }
+        }
+      ]
+    },
+    "embeddings_request_document": {
+      "type": "object",
+      "properties": {
+        "input": { "$ref": "#/definitions/embeddings_input" },
+        "model": { "type": "string" },
+        "dimensions": { "type": "integer" },
+        "encoding_format": { "type": "string" },
+        "user": { "type": "string" }
+      },
+      "required": ["input", "model"],
+      "additionalProperties": false
+    },
+    "embeddings_embedding": {
+      "type": "object",
+      "properties": {
+        "object": { "type": "string" },
+        "index": { "type": "integer" },
+        "embedding": {
+          "anyOf": [
+            { "type": "string" },
+            { "$ref": "#/definitions/number_array" }
+          ]
+        }
+      },
+      "required": ["object", "index", "embedding"],
+      "additionalProperties": false
+    },
+    "embeddings_response_document": {
+      "type": "object",
+      "properties": {
+        "object": { "type": "string" },
+        "model": { "type": "string" },
+        "data": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/embeddings_embedding" }
+        },
+        "usage": {
+          "type": "object",
+          "properties": {
+            "prompt_tokens": { "type": "integer" },
+            "total_tokens": { "type": "integer" }
+          },
+          "required": ["prompt_tokens", "total_tokens"],
+          "additionalProperties": false
+        }
+      },
+      "required": ["object", "model", "data", "usage"],
+      "additionalProperties": false
+    },
+    "model_document": {
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "object": { "type": "string" },
+        "created": { "type": "integer" },
+        "owned_by": { "type": "string" }
+      },
+      "required": ["id", "object", "created", "owned_by"],
+      "additionalProperties": false
+    },
+    "models_list_response_document": {
+      "type": "object",
+      "properties": {
+        "object": { "type": "string" },
+        "data": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/model_document" }
+        }
+      },
+      "required": ["object", "data"],
+      "additionalProperties": false
+    },
+    "streaming_response_event_document": {
+      "type": "object",
+      "properties": {
+        "type": { "type": "string" },
+        "response_id": { "type": "string" },
+        "item_id": { "type": "string" },
+        "status": { "type": "string" },
+        "output_index": { "type": "integer" },
+        "content_index": { "type": "integer" },
+        "item_index": { "type": "integer" },
+        "summary_index": { "type": "integer" },
+        "sequence_number": { "type": "integer" },
+        "delta": { "type": "string" },
+        "text": { "type": "string" },
+        "arguments": { "type": "string" },
+        "code": { "type": "string" },
+        "transcript": { "type": "string" },
+        "partial_image_b64": { "type": "string" },
+        "annotation": { "$ref": "#/definitions/annotation" },
+        "item": { "$ref": "#/definitions/responses_item" },
+        "content_part": { "$ref": "#/definitions/responses_message_content_part" },
+        "response": { "$ref": "#/definitions/responses_response_partial" },
+        "error": { "$ref": "#/definitions/responses_error" }
+      },
+      "required": ["type"],
+      "additionalProperties": true
+    },
+    "compat_error_envelope_document": {
+      "type": "object",
+      "properties": {
+        "error": { "$ref": "#/definitions/responses_error" }
+      },
+      "required": ["error"],
+      "additionalProperties": false
+    },
+    "compat_list_envelope_document": {
+      "type": "object",
+      "properties": {
+        "object": { "type": "string" },
+        "data": {
+          "type": "array",
+          "items": {}
+        },
+        "has_more": { "type": "boolean" },
+        "first_id": { "type": "string" },
+        "last_id": { "type": "string" },
+        "next": { "type": "string" }
+      },
+      "required": ["data"],
+      "additionalProperties": false
+    }
+  }
+}

@@ -1,0 +1,7 @@
+{
+  "model": "text-embedding-3-large",
+  "input": [
+    1,
+    "two"
+  ]
+}

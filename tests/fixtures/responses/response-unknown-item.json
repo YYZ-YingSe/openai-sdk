@@ -1,0 +1,16 @@
+{
+  "id": "resp_unknown",
+  "object": "response",
+  "model": "gpt-4.1",
+  "status": "completed",
+  "output": [
+    {
+      "type": "vendor_x_call",
+      "id": "vx_1",
+      "payload": {
+        "answer": 42,
+        "ok": true
+      }
+    }
+  ]
+}

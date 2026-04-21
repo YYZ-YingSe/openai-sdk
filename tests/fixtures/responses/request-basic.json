@@ -1,0 +1,8 @@
+{
+  "model": "gpt-4.1",
+  "input": "hello",
+  "parallel_tool_calls": true,
+  "metadata": {
+    "trace_id": "abc-123"
+  }
+}

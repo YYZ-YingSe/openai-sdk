@@ -1,0 +1,139 @@
+{
+  "model": "gpt-4.1",
+  "instructions": [
+    {
+      "type": "message",
+      "role": "system",
+      "content": [
+        {
+          "type": "input_text",
+          "text": "Be concise."
+        }
+      ]
+    }
+  ],
+  "input": [
+    {
+      "type": "message",
+      "id": "msg_user",
+      "role": "user",
+      "content": [
+        {
+          "type": "input_text",
+          "text": "Weather in Hangzhou?"
+        },
+        {
+          "type": "input_image",
+          "image_url": "https://example.com/map.png",
+          "detail": "high"
+        }
+      ]
+    },
+    {
+      "type": "function_call_output",
+      "call_id": "call_lookup",
+      "output": [
+        {
+          "type": "output_text",
+          "text": "22C and sunny"
+        }
+      ]
+    }
+  ],
+  "tools": [
+    {
+      "type": "function",
+      "name": "lookup_weather",
+      "description": "Look up the weather",
+      "strict": true,
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "city": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "city"
+        ]
+      }
+    },
+    {
+      "type": "mcp",
+      "server_label": "docs",
+      "allowed_tools": [
+        "docs.search"
+      ]
+    },
+    {
+      "type": "apply_patch"
+    }
+  ],
+  "tool_choice": {
+    "type": "function",
+    "name": "lookup_weather"
+  },
+  "reasoning": {
+    "effort": "medium",
+    "generate_summary": "concise"
+  },
+  "text": {
+    "verbosity": "low",
+    "format": {
+      "type": "json_schema",
+      "json_schema": {
+        "name": "weather_answer",
+        "strict": true,
+        "schema": {
+          "type": "object",
+          "properties": {
+            "summary": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "summary"
+          ]
+        }
+      }
+    }
+  },
+  "parallel_tool_calls": true,
+  "store": true,
+  "stream": true,
+  "stream_options": {
+    "include_obfuscation": true
+  },
+  "previous_response_id": "resp_prev",
+  "max_output_tokens": 128,
+  "max_tool_calls": 4,
+  "temperature": 0.4,
+  "top_p": 0.95,
+  "top_logprobs": 2,
+  "truncation": "auto",
+  "prompt_cache_key": "weather-key",
+  "prompt_cache_retention": "session",
+  "safety_identifier": "sid_1",
+  "service_tier": "default",
+  "context_management": [
+    {
+      "type": "auto",
+      "compact_threshold": 12
+    }
+  ],
+  "conversation": {
+    "id": "conv_1",
+    "object": "conversation"
+  },
+  "prompt": {
+    "id": "prompt_1",
+    "object": "prompt"
+  },
+  "include": [
+    "output_text"
+  ],
+  "metadata": {
+    "trace_id": "trace-123"
+  },
+  "user": "sdk-user"
+}

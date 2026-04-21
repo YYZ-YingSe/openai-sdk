@@ -1,0 +1,25 @@
+{
+  "id": "chatcmpl_123",
+  "object": "chat.completion.chunk",
+  "created": 1744281601,
+  "model": "gpt-4o-mini",
+  "choices": [
+    {
+      "index": 0,
+      "delta": {
+        "role": "assistant",
+        "tool_calls": [
+          {
+            "id": "call_1",
+            "type": "function",
+            "function": {
+              "name": "lookup_weather",
+              "arguments": "{\"city\":\"Hangzhou\"}"
+            }
+          }
+        ]
+      },
+      "finish_reason": null
+    }
+  ]
+}

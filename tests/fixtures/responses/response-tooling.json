@@ -1,0 +1,136 @@
+{
+  "id": "resp_tooling_1",
+  "object": "response",
+  "model": "gpt-4.1",
+  "status": "completed",
+  "created_at": 1744281600,
+  "completed_at": 1744281605,
+  "instructions": "Be concise.",
+  "output": [
+    {
+      "type": "reasoning",
+      "id": "rs_1",
+      "summary": [
+        {
+          "text": "Need weather info"
+        }
+      ]
+    },
+    {
+      "type": "function_call",
+      "id": "fc_1",
+      "call_id": "call_lookup",
+      "name": "lookup_weather",
+      "arguments": "{\"city\":\"Hangzhou\"}"
+    },
+    {
+      "type": "function_call_output",
+      "id": "fco_1",
+      "call_id": "call_lookup",
+      "output": [
+        {
+          "type": "output_text",
+          "text": "22C and sunny"
+        }
+      ]
+    },
+    {
+      "type": "message",
+      "id": "msg_1",
+      "status": "completed",
+      "role": "assistant",
+      "content": [
+        {
+          "type": "output_text",
+          "text": "Hangzhou is 22C and sunny.",
+          "annotations": [
+            {
+              "type": "url_citation",
+              "title": "Forecast",
+              "url": "https://example.com/forecast"
+            }
+          ],
+          "logprobs": [
+            {
+              "token": "sunny",
+              "logprob": -0.1,
+              "bytes": [
+                115,
+                117,
+                110,
+                110,
+                121
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "tools": [
+    {
+      "type": "function",
+      "name": "lookup_weather",
+      "parameters": {
+        "type": "object"
+      }
+    }
+  ],
+  "tool_choice": {
+    "type": "function",
+    "name": "lookup_weather"
+  },
+  "usage": {
+    "input_tokens": 12,
+    "output_tokens": 8,
+    "total_tokens": 20,
+    "input_tokens_details": {
+      "cached_tokens": 2
+    },
+    "output_tokens_details": {
+      "reasoning_tokens": 1
+    }
+  },
+  "text": {
+    "verbosity": "low",
+    "format": {
+      "type": "json_schema",
+      "json_schema": {
+        "name": "weather_answer",
+        "strict": true,
+        "schema": {
+          "type": "object",
+          "properties": {
+            "summary": {
+              "type": "string"
+            }
+          }
+        }
+      }
+    }
+  },
+  "reasoning": {
+    "summary": "Need weather info"
+  },
+  "background": false,
+  "parallel_tool_calls": true,
+  "stream": true,
+  "stream_options": {
+    "include_obfuscation": true
+  },
+  "previous_response_id": "resp_prev",
+  "max_output_tokens": 128,
+  "max_tool_calls": 4,
+  "temperature": 0.4,
+  "top_p": 0.95,
+  "top_logprobs": 2,
+  "truncation": "auto",
+  "prompt_cache_key": "weather-key",
+  "prompt_cache_retention": "session",
+  "safety_identifier": "sid_1",
+  "service_tier": "default",
+  "metadata": {
+    "trace_id": "trace-123"
+  },
+  "user": "sdk-user"
+}

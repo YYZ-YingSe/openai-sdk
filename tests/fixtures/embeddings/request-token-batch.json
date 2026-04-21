@@ -1,0 +1,17 @@
+{
+  "input": [
+    [
+      1,
+      2,
+      3
+    ],
+    [
+      4,
+      5
+    ]
+  ],
+  "model": "text-embedding-3-large",
+  "dimensions": 1024,
+  "encoding_format": "float",
+  "user": "sdk-user"
+}

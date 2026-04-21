@@ -1,0 +1,8 @@
+{
+  "id": "obj_1",
+  "object": "provider.object",
+  "type": "vendor_payload",
+  "payload": {
+    "answer": 42
+  }
+}

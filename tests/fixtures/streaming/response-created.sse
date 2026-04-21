@@ -1,0 +1,5 @@
+event: response.created
+data: {"type":"response.created","response":{"id":"resp_123","object":"response","status":"in_progress","output":[]}}
+
+data: [DONE]
+

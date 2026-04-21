@@ -1,0 +1,11 @@
+{
+  "object": "list",
+  "data": [
+    {
+      "id": "gpt-4.1",
+      "object": "model",
+      "created": "bad",
+      "owned_by": "openai"
+    }
+  ]
+}

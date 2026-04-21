@@ -1,0 +1,9 @@
+{
+  "input": [
+    "hello",
+    "world"
+  ],
+  "model": "text-embedding-3-large",
+  "dimensions": 1024,
+  "encoding_format": "float"
+}

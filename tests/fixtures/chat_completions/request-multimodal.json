@@ -1,0 +1,82 @@
+{
+  "model": "gpt-4o-mini",
+  "messages": [
+    {
+      "role": "system",
+      "content": "Be concise."
+    },
+    {
+      "role": "user",
+      "content": [
+        {
+          "type": "text",
+          "text": "Describe this city and weather."
+        },
+        {
+          "type": "image_url",
+          "image_url": {
+            "url": "https://example.com/city.png",
+            "detail": "high"
+          }
+        },
+        {
+          "type": "input_audio",
+          "input_audio": {
+            "data": "YWJj",
+            "format": "wav"
+          }
+        }
+      ]
+    }
+  ],
+  "tools": [
+    {
+      "type": "function",
+      "name": "lookup_weather",
+      "parameters": {
+        "type": "object"
+      }
+    }
+  ],
+  "tool_choice": {
+    "type": "function",
+    "name": "lookup_weather"
+  },
+  "response_format": {
+    "type": "json_schema",
+    "json_schema": {
+      "name": "answer",
+      "strict": true,
+      "schema": {
+        "type": "object",
+        "properties": {
+          "summary": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  },
+  "max_completion_tokens": 64,
+  "modalities": [
+    "text"
+  ],
+  "parallel_tool_calls": true,
+  "temperature": 0.3,
+  "top_p": 0.8,
+  "top_logprobs": 2,
+  "logprobs": true,
+  "stop": [
+    "END"
+  ],
+  "stream": true,
+  "stream_options": {
+    "include_obfuscation": true,
+    "include_usage": true
+  },
+  "service_tier": "default",
+  "metadata": {
+    "trace_id": "trace-chat"
+  },
+  "user": "sdk-user"
+}

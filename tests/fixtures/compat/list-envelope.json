@@ -1,0 +1,14 @@
+{
+  "object": "list",
+  "data": [
+    {
+      "id": "item_1",
+      "object": "provider.object",
+      "value": 42
+    }
+  ],
+  "has_more": true,
+  "first_id": "item_1",
+  "last_id": "item_1",
+  "next": "cursor_2"
+}

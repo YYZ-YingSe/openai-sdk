@@ -65,7 +65,7 @@ private:
 };
 
 struct parse_options {
-  const registry *registry{nullptr};
+  const ::openai::responses::registry *registry{nullptr};
   bool strict{false};
 };
 

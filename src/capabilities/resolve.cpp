@@ -1,6 +1,7 @@
 #include "openai/capabilities/resolve.hpp"
 
 #include <algorithm>
+#include <iterator>
 
 namespace openai::capabilities {
 namespace {

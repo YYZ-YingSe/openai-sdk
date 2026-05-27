@@ -467,8 +467,8 @@ struct request {
   std::optional<std::string> safety_identifier{};
   std::optional<std::string> service_tier{};
   std::vector<context_management_entry> context_management{};
-  std::optional<raw_json> conversation{};
-  std::optional<raw_json> prompt{};
+  std::optional<::openai::responses::raw_json> conversation{};
+  std::optional<::openai::responses::raw_json> prompt{};
   std::vector<std::string> include{};
   std::map<std::string, std::string> metadata{};
   std::optional<std::string> user{};
@@ -531,8 +531,8 @@ struct response {
   std::optional<std::string> prompt_cache_retention{};
   std::optional<std::string> safety_identifier{};
   std::optional<std::string> service_tier{};
-  std::optional<raw_json> conversation{};
-  std::optional<raw_json> prompt{};
+  std::optional<::openai::responses::raw_json> conversation{};
+  std::optional<::openai::responses::raw_json> prompt{};
   std::map<std::string, std::string> metadata{};
   std::optional<std::string> user{};
   std::string raw_json{};

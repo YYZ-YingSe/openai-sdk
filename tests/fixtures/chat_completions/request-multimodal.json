@@ -32,15 +32,19 @@
   "tools": [
     {
       "type": "function",
-      "name": "lookup_weather",
-      "parameters": {
-        "type": "object"
+      "function": {
+        "name": "lookup_weather",
+        "parameters": {
+          "type": "object"
+        }
       }
     }
   ],
   "tool_choice": {
     "type": "function",
-    "name": "lookup_weather"
+    "function": {
+      "name": "lookup_weather"
+    }
   },
   "response_format": {
     "type": "json_schema",

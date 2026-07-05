@@ -322,22 +322,61 @@ auto serialize_usage_value(const usage &value) -> result<core::value> {
   return result<core::value>::success(core::value{std::move(object)});
 }
 
-auto serialize_tool_definition_through_responses(
-    const responses::tool_definition &value) -> result<core::value> {
-  auto json = responses::serialize_tool_definition(value);
-  if (json.has_error()) {
-    return result<core::value>::failure(json.error());
-  }
-  return to_json_value(json.value());
+auto serialize_tool_definition_value(const responses::tool_definition &value)
+    -> result<core::value> {
+  return std::visit(
+      []<typename tool_t>(const tool_t &current) -> result<core::value> {
+        using current_t = std::decay_t<tool_t>;
+        if constexpr (std::is_same_v<current_t, responses::raw_json>) {
+          return raw_json_to_value(current);
+        } else if constexpr (std::is_same_v<current_t,
+                                             responses::function_tool>) {
+          object_t function{};
+          insert_value(function, "name", core::value{current.name});
+          insert_optional_string(function, "description", current.description);
+          insert_optional_bool(function, "strict", current.strict);
+          if (current.parameters_json.has_value()) {
+            auto parsed = to_json_value(*current.parameters_json);
+            if (parsed.has_error()) {
+              return result<core::value>::failure(parsed.error());
+            }
+            insert_value(function, "parameters", std::move(parsed.value()));
+          }
+
+          object_t object{};
+          insert_value(object, "type", core::value{"function"});
+          insert_value(object, "function", core::value{std::move(function)});
+          return result<core::value>::success(core::value{std::move(object)});
+        } else {
+          return result<core::value>::failure(make_error(
+              errc::not_supported,
+              "chat completions only support function tool definitions"));
+        }
+      },
+      value);
 }
 
-auto serialize_tool_choice_through_responses(const responses::tool_choice &value)
+auto serialize_tool_choice_value(const responses::tool_choice &value)
     -> result<core::value> {
-  auto json = responses::serialize_tool_choice(value);
-  if (json.has_error()) {
-    return result<core::value>::failure(json.error());
+  if (!value.raw_json.empty()) {
+    return to_json_value(value.raw_json);
   }
-  return to_json_value(json.value());
+  if (!value.mode.empty() && !value.type.has_value() &&
+      !value.name.has_value()) {
+    return result<core::value>::success(core::value{value.mode});
+  }
+  if (value.type == "function" && value.name.has_value()) {
+    object_t function{};
+    insert_value(function, "name", core::value{*value.name});
+
+    object_t object{};
+    insert_value(object, "type", core::value{"function"});
+    insert_value(object, "function", core::value{std::move(function)});
+    return result<core::value>::success(core::value{std::move(object)});
+  }
+  return result<core::value>::failure(make_error(
+      errc::not_supported,
+      "chat completions only support string or function tool_choice"));
 }
 
 auto serialize_request_value(const request &value) -> result<core::value> {
@@ -359,7 +398,7 @@ auto serialize_request_value(const request &value) -> result<core::value> {
     array_t tools{};
     tools.reserve(value.tools.size());
     for (const auto &entry : value.tools) {
-      auto serialized = serialize_tool_definition_through_responses(entry);
+      auto serialized = serialize_tool_definition_value(entry);
       if (serialized.has_error()) {
         return result<core::value>::failure(serialized.error());
       }
@@ -368,8 +407,7 @@ auto serialize_request_value(const request &value) -> result<core::value> {
     insert_value(object, "tools", core::value{std::move(tools)});
   }
   if (value.tool_choice_value.has_value()) {
-    auto serialized =
-        serialize_tool_choice_through_responses(*value.tool_choice_value);
+    auto serialized = serialize_tool_choice_value(*value.tool_choice_value);
     if (serialized.has_error()) {
       return result<core::value>::failure(serialized.error());
     }

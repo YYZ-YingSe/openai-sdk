@@ -430,6 +430,62 @@ using core::result;
   return result<usage>::success(std::move(parsed));
 }
 
+[[nodiscard]] auto parse_chat_tool_definition_value(
+    const core::json_value &value, const responses::parse_options &options)
+    -> result<responses::tool_definition> {
+  if (!value.IsObject()) {
+    return result<responses::tool_definition>::failure(
+        make_error(errc::type_mismatch, "tool definition must be an object"));
+  }
+
+  auto type = core::required_string(value, "type");
+  if (type.has_error()) {
+    return result<responses::tool_definition>::failure(type.error());
+  }
+
+  if (type.value() != "function") {
+    auto serialized = json_to_string(value);
+    if (serialized.has_error()) {
+      return result<responses::tool_definition>::failure(serialized.error());
+    }
+    return responses::parse_tool_definition_json(serialized.value(), options);
+  }
+
+  const auto *function = json_member(value, "function");
+  const auto &source =
+      function != nullptr && function->IsObject() ? *function : value;
+
+  responses::function_tool parsed{};
+  if (auto name = core::required_string(source, "name"); name.has_error()) {
+    return result<responses::tool_definition>::failure(name.error());
+  } else {
+    parsed.name = std::move(name.value());
+  }
+  if (auto description = core::optional_string(source, "description");
+      description.has_error()) {
+    return result<responses::tool_definition>::failure(description.error());
+  } else {
+    parsed.description = std::move(description.value());
+  }
+  if (auto strict = core::optional_bool(source, "strict"); strict.has_error()) {
+    return result<responses::tool_definition>::failure(strict.error());
+  } else {
+    parsed.strict = strict.value();
+  }
+
+  const auto *parameters = json_member(source, "parameters");
+  if (parameters != nullptr && !parameters->IsNull()) {
+    auto serialized = json_to_string(*parameters);
+    if (serialized.has_error()) {
+      return result<responses::tool_definition>::failure(serialized.error());
+    }
+    parsed.parameters_json = std::move(serialized.value());
+  }
+
+  return result<responses::tool_definition>::success(
+      responses::tool_definition{std::move(parsed)});
+}
+
 [[nodiscard]] auto parse_request_value(const core::json_value &value,
                                        const responses::parse_options &options)
     -> result<request> {
@@ -652,12 +708,7 @@ using core::result;
     }
     parsed.tools.reserve(tools->Size());
     for (const auto &entry : tools->GetArray()) {
-      auto serialized = json_to_string(entry);
-      if (serialized.has_error()) {
-        return result<request>::failure(serialized.error());
-      }
-      auto parsed_tool =
-          responses::parse_tool_definition_json(serialized.value(), options);
+      auto parsed_tool = parse_chat_tool_definition_value(entry, options);
       if (parsed_tool.has_error()) {
         return result<request>::failure(parsed_tool.error());
       }

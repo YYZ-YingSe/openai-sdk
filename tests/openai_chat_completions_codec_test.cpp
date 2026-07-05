@@ -21,18 +21,42 @@ OAI_TEST("serialize chat completions request with messages and tools") {
   tool.parameters_json = R"json({"type":"object"})json";
   request.tools.push_back(tool);
 
+  openai::responses::tool_choice tool_choice{};
+  tool_choice.type = "function";
+  tool_choice.name = "lookup_weather";
+  request.tool_choice_value = std::move(tool_choice);
   request.parallel_tool_calls = true;
 
   auto json = openai::chat_completions::serialize_request(request);
   OAI_REQUIRE(json.has_value());
   OAI_REQUIRE(json.value().find("\"messages\"") != std::string::npos);
   OAI_REQUIRE(json.value().find("\"stream\":true") != std::string::npos);
+  OAI_REQUIRE(json.value().find(
+                  "\"tools\":[{\"function\":{\"name\":\"lookup_weather\","
+                  "\"parameters\":{\"type\":\"object\"}},\"type\":\"function\"}]") !=
+              std::string::npos);
+  OAI_REQUIRE(json.value().find(
+                  "\"tool_choice\":{\"function\":{\"name\":\"lookup_weather\"},"
+                  "\"type\":\"function\"}") != std::string::npos);
+  OAI_REQUIRE(json.value().find("\"tools\":[{\"name\":\"lookup_weather\"") ==
+              std::string::npos);
 
   auto reparsed = openai::chat_completions::parse_request(json.value());
   OAI_REQUIRE(reparsed.has_value());
   OAI_REQUIRE(reparsed.value().model.has_value());
   OAI_REQUIRE(reparsed.value().model.value() == "gpt-4o-mini");
   OAI_REQUIRE(reparsed.value().messages.size() == 1U);
+  OAI_REQUIRE(reparsed.value().tools.size() == 1U);
+  const auto *reparsed_tool =
+      std::get_if<openai::responses::function_tool>(
+          &reparsed.value().tools.front());
+  OAI_REQUIRE(reparsed_tool != nullptr);
+  OAI_REQUIRE(reparsed_tool->name == "lookup_weather");
+  OAI_REQUIRE(reparsed_tool->parameters_json.has_value());
+  OAI_REQUIRE(reparsed.value().tool_choice_value.has_value());
+  OAI_REQUIRE(reparsed.value().tool_choice_value->name.has_value());
+  OAI_REQUIRE(reparsed.value().tool_choice_value->name.value() ==
+              "lookup_weather");
 }
 
 OAI_TEST("serialize chat completion response and chunk") {

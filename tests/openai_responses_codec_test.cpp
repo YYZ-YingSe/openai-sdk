@@ -41,6 +41,58 @@ OAI_TEST("serialize responses request with tools and structured output") {
   OAI_REQUIRE(reparsed.value().tools.size() == 1U);
 }
 
+OAI_TEST("responses custom grammar tool uses nested format contract") {
+  openai::responses::request request{};
+  request.model = "gpt-5";
+  request.input = std::string{"Update the file."};
+
+  openai::responses::custom_tool tool{};
+  tool.name = "apply_patch";
+  tool.description = "Apply a context-verified patch";
+  tool.format = openai::responses::custom_tool_grammar_format{
+      .syntax = "lark",
+      .definition = "start: patch\npatch: /.+/",
+  };
+  request.tools.push_back(std::move(tool));
+
+  auto json = openai::responses::serialize_request(request);
+  OAI_REQUIRE(json.has_value());
+  OAI_REQUIRE(json.value().find("\"format\":{") != std::string::npos);
+  OAI_REQUIRE(json.value().find("\"type\":\"grammar\"") !=
+              std::string::npos);
+  OAI_REQUIRE(json.value().find("\"syntax\":\"lark\"") !=
+              std::string::npos);
+  OAI_REQUIRE(json.value().find("\"definition\":") != std::string::npos);
+  OAI_REQUIRE(json.value().find("\"grammar\":") == std::string::npos);
+
+  auto reparsed = openai::responses::parse_request(json.value());
+  OAI_REQUIRE(reparsed.has_value());
+  OAI_REQUIRE(reparsed.value().tools.size() == 1U);
+  const auto *reparsed_tool =
+      std::get_if<openai::responses::custom_tool>(&reparsed.value().tools[0]);
+  OAI_REQUIRE(reparsed_tool != nullptr);
+  OAI_REQUIRE(reparsed_tool->format.has_value());
+  OAI_REQUIRE(reparsed_tool->format->syntax == "lark");
+  OAI_REQUIRE(reparsed_tool->format->definition ==
+              "start: patch\npatch: /.+/");
+}
+
+OAI_TEST("responses custom tool rejects the legacy sibling grammar shape") {
+  const auto parsed = openai::responses::parse_request(R"json({
+    "model": "gpt-5",
+    "input": "Update the file.",
+    "tools": [{
+      "type": "custom",
+      "name": "apply_patch",
+      "format": "grammar",
+      "grammar": {"syntax": "lark", "definition": "start: patch"}
+    }]
+  })json");
+
+  OAI_REQUIRE(parsed.has_error());
+  OAI_REQUIRE(parsed.error().code() == openai::core::errc::type_mismatch);
+}
+
 OAI_TEST("responses request and response round-trip canonically") {
   const std::string request_json =
       R"json({"model":"gpt-4.1","input":"hello","parallel_tool_calls":true})json";

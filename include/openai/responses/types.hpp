@@ -148,11 +148,15 @@ struct function_shell_tool {
   std::optional<bool> strict{};
 };
 
+struct custom_tool_grammar_format {
+  std::string syntax{};
+  std::string definition{};
+};
+
 struct custom_tool {
   std::string name{};
   std::optional<std::string> description{};
-  std::optional<std::string> format{};
-  std::optional<std::string> grammar_json{};
+  std::optional<custom_tool_grammar_format> format{};
 };
 
 struct image_generation_tool {

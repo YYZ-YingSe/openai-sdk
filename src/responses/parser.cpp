@@ -1632,15 +1632,31 @@ template <typename output_item_t>
     } else {
       parsed.description = std::move(field.value());
     }
-    if (auto field = core::optional_string(value, "format"); field.has_error()) {
-      return result<tool_definition>::failure(field.error());
-    } else {
-      parsed.format = std::move(field.value());
-    }
-    if (auto field = optional_json_blob(value, "grammar"); field.has_error()) {
-      return result<tool_definition>::failure(field.error());
-    } else {
-      parsed.grammar_json = std::move(field.value());
+    if (const auto *format = json_member(value, "format"); format != nullptr) {
+      if (!format->IsObject()) {
+        return result<tool_definition>::failure(make_error(
+            errc::type_mismatch, "custom tool format must be an object"));
+      }
+      auto type = core::required_string(*format, "type");
+      if (type.has_error()) {
+        return result<tool_definition>::failure(type.error());
+      }
+      if (type.value() != "grammar") {
+        return result<tool_definition>::failure(make_error(
+            errc::not_supported, "unsupported custom tool format type"));
+      }
+      auto syntax = core::required_string(*format, "syntax");
+      if (syntax.has_error()) {
+        return result<tool_definition>::failure(syntax.error());
+      }
+      auto definition = core::required_string(*format, "definition");
+      if (definition.has_error()) {
+        return result<tool_definition>::failure(definition.error());
+      }
+      parsed.format = custom_tool_grammar_format{
+          .syntax = std::move(syntax.value()),
+          .definition = std::move(definition.value()),
+      };
     }
     return result<tool_definition>::success(tool_definition{std::move(parsed)});
   }

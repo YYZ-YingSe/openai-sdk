@@ -739,8 +739,16 @@
             "type": { "enum": ["custom"] },
             "name": { "type": "string" },
             "description": { "type": "string" },
-            "format": { "type": "string" },
-            "grammar": {}
+            "format": {
+              "type": "object",
+              "properties": {
+                "type": { "enum": ["grammar"] },
+                "syntax": { "type": "string" },
+                "definition": { "type": "string" }
+              },
+              "required": ["type", "syntax", "definition"],
+              "additionalProperties": false
+            }
           },
           "required": ["type", "name"],
           "additionalProperties": false

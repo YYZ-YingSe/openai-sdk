@@ -89,6 +89,15 @@ OAI_TEST("serialized outputs satisfy retained contract schemas") {
   responses_function_tool.parameters_json =
       R"json({"type":"object","properties":{"city":{"type":"string"}},"required":["city"]})json";
   responses_request.tools.push_back(std::move(responses_function_tool));
+  openai::responses::custom_tool responses_custom_tool{};
+  responses_custom_tool.name = "apply_patch";
+  responses_custom_tool.description = "Apply a context-verified patch";
+  responses_custom_tool.format =
+      openai::responses::custom_tool_grammar_format{
+          .syntax = "lark",
+          .definition = "start: patch\npatch: /.+/",
+      };
+  responses_request.tools.push_back(std::move(responses_custom_tool));
   responses_request.tools.push_back(openai::responses::apply_patch_tool{});
   openai::responses::tool_choice responses_tool_choice{};
   responses_tool_choice.type = "function";

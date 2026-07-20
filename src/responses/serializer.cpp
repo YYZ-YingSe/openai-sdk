@@ -896,11 +896,14 @@ auto serialize_tool_definition_value(const tool_definition &value)
           insert_value(object, "type", core::value{"custom"});
           insert_value(object, "name", core::value{current.name});
           insert_optional_string(object, "description", current.description);
-          insert_optional_string(object, "format", current.format);
-          if (auto inserted = insert_json_blob(object, "grammar",
-                                               current.grammar_json);
-              inserted.has_error()) {
-            return result<core::value>::failure(inserted.error());
+          if (current.format.has_value()) {
+            object_t format{};
+            insert_value(format, "type", core::value{"grammar"});
+            insert_value(format, "syntax",
+                         core::value{current.format->syntax});
+            insert_value(format, "definition",
+                         core::value{current.format->definition});
+            insert_value(object, "format", core::value{std::move(format)});
           }
           return result<core::value>::success(core::value{std::move(object)});
         } else if constexpr (std::is_same_v<current_t, image_generation_tool>) {
